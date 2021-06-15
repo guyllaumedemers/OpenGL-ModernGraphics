@@ -1,46 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/c++,visualstudio
-# Edit at https://www.toptal.com/developers/gitignore?templates=c++,visualstudio
-
-### C++ ###
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudio
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and
@@ -62,13 +22,11 @@
 mono_crash.*
 
 # Build results
-[Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
 x64/
 x86/
-[Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
@@ -107,9 +65,6 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
-# ASP.NET Scaffolding
-ScaffoldingReadMe.txt
-
 # StyleCop
 StyleCopReport.xml
 
@@ -117,8 +72,12 @@ StyleCopReport.xml
 *_i.c
 *_p.c
 *_h.h
+*.ilk
 *.meta
+*.obj
 *.iobj
+*.pch
+*.pdb
 *.ipdb
 *.pgc
 *.pgd
@@ -183,8 +142,7 @@ _TeamCity*
 !.axoCover/settings.json
 
 # Coverlet is a free, cross platform Code Coverage Tool
-coverage*.[ji][sn][of][no]
-coverage*.xml
+coverage*[.json, .xml, .info]
 
 # Visual Studio code coverage results
 *.coverage
@@ -398,11 +356,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-# Fody - auto-generated XML schema
-FodyWeavers.xsd
-
-### VisualStudio Patch ###
-# Additional files built by Visual Studio
-*.tlog
-
-# End of https://www.toptal.com/developers/gitignore/api/c++,visualstudio
+# End of https://www.toptal.com/developers/gitignore/api/visualstudio
