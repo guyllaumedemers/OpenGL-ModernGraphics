@@ -1,6 +1,6 @@
 # OpenGL-ModernGraphics
 
-Welcome to OpenGL-ModernGraphics, a repository containning various exercices for learning __OpenGL__.</br>
+Welcome to OpenGL-ModernGraphics, a repository containning various exercices for learning __OpenGL__ and keeping those __CPlusPlus__ skills sharp.</br>
 Useful scripts are located in OpenGL-ModernGraphics/..
 
 ## Getting Started
