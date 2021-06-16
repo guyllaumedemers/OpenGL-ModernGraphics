@@ -28,7 +28,7 @@ GLuint CreateShaderProgram() {
 
 	glCompileShader(vShader);
 	GLSLToolDebug::CheckOpenGLError();
-	glGetShaderiv(vShader, GL_INFO_LOG_LENGTH, &vertCompiled);
+	glGetShaderiv(vShader, GL_COMPILE_STATUS, &vertCompiled);
 	if (vertCompiled != 1) {
 		std::cout << "vertex compilation failed" << std::endl;
 		GLSLToolDebug::PrintShaderLog(vShader);
@@ -36,7 +36,7 @@ GLuint CreateShaderProgram() {
 
 	glCompileShader(fShader);
 	GLSLToolDebug::CheckOpenGLError();
-	glGetShaderiv(fShader, GL_INFO_LOG_LENGTH, &fragCompiled);
+	glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
 	if (fragCompiled != 1) {
 		std::cout << "fragment compilation failed" << std::endl;
 		GLSLToolDebug::PrintShaderLog(fShader);
