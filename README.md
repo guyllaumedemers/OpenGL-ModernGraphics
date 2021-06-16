@@ -1,7 +1,7 @@
 # OpenGL-ModernGraphics
 
 Welcome to OpenGL-ModernGraphics, a repository containning various exercices for learning OpenGL.</br>
-Useful scripts are located in OpenGL/..
+Useful scripts are located in OpenGL-ModernGraphics/..
 
 ## Getting Started
 
