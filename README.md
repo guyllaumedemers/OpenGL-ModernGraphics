@@ -28,4 +28,4 @@ NOTE : Scripts created by myself can be found here.
 
 ## Resources
 
-💬 References for OpenGL are given from : [Computer Graphics programming in OpenGL with CPlusPlus](https://www.amazon.ca/-/fr/V-Scott-Gordon-ebook/dp/B08QTZYVR4/ref=sr_1_1?__mk_fr_CA=%C3%85M%C3%85%C5%BD%C3%95%C3%91&dchild=1&keywords=computer+graphics+c%2B%2B+opengl&qid=1623875628&s=digital-text&sr=1-1)
+💬 References for OpenGL are given from : [Computer Graphics programming in OpenGL with CPlusPlus](https://www.amazon.ca/gp/product/1683922212/ref=dbs_a_def_rwt_bibl_vppi_i2)
