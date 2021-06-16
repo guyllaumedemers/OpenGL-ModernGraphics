@@ -10,7 +10,7 @@ namespace GLSLFileReader {
 		std::ifstream fileStream(filePath, std::ios::in);			// initialize the filestream
 		std::string line = "";
 
-		if (!fileStream) {											// safety catch, not sure why I wasnt able to use a try catch statement here
+		if (!fileStream) {											// safety catch
 			std::cout << "filepath invalid" << std::endl;
 			return "";
 		}
