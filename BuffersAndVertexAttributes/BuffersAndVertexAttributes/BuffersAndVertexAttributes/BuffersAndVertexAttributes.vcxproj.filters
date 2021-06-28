@@ -38,6 +38,9 @@
     <ClInclude Include="..\OpenGL-Template\header\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cMath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vShaderSource.shader">

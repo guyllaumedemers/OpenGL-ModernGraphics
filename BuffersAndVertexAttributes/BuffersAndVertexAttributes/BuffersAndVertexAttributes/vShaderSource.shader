@@ -22,6 +22,9 @@ mat4 RotateZ(float rad) {
 	return zRot;
 }
 
+uniform mat4 mv_matrix;
+uniform mat4 proj_matrix;
+
 void main(void) {
-	gl_Position = Scale(0.2, 0.2, 0.2) * RotateZ(radians(45)) * vec4(position, 1.0);
+	gl_Position = proj_matrix * mv_matrix * vec4(position, 1.0);						// order matter
 }

@@ -154,6 +154,7 @@
     <ClInclude Include="..\OpenGL-Template\header\GLSLMatrix.h" />
     <ClInclude Include="..\OpenGL-Template\header\GLSLToolDebug.h" />
     <ClInclude Include="..\OpenGL-Template\header\Utilities.h" />
+    <ClInclude Include="cMath.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fShaderSource.shader" />

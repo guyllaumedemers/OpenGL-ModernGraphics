@@ -4,6 +4,10 @@
 #include <GLFW/glfw3.h>			// window API lib
 #include "../OpenGL-Template/header/GLSLFileReader.h"
 #include "../OpenGL-Template/header/GLSLToolDebug.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "cMath.h"
 
 #define numVAOs 1
 #define numVBOs 2
@@ -12,6 +16,13 @@ GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
 GLuint renderingProgram;
+GLuint mvLoc, projLoc;
+glm::mat4 pMat, vMat, mMat, mvMat;
+int width, height;
+float aspectRatio;
+float camX = 0.0f, camY = 0.0f, camZ = 8.0f;
+float cubeLocX = 0.0f, cubeLocY = -2.0f, cubeLocZ = 0.0f;
+float rad = cMath::degToRad(60);
 
 float vPositions[] = {			// Cube array
 	-1.0f,-1.0f,-1.0f,
@@ -133,12 +144,33 @@ void display(GLFWwindow* window, double currentTime) {
 	glClear(GL_COLOR_BUFFER_BIT);												// clear background to color buffer
 	// run program
 	glUseProgram(renderingProgram);
+
+	// get the uniform variables for the model-View and projection matrices
+	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+
+	// build perspective matrix
+	glfwGetFramebufferSize(window, &width, &height);
+	aspectRatio = (float)width / (float)height;
+	pMat = glm::perspective(rad, aspectRatio, 0.1f, 1000.0f);					// camera
+
+	// build view matrix, model matrix and MV
+	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-camX, -camY, -camZ));						// create an identity matrix and multiply by the translate vec3
+	mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	mvMat = vMat * mMat;
+
+	// copy perspective matrix and MVmatrix to uniforms to create 3d scene
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));				// send to the uniform ID (mvLoc) the information regarding the model-view matrix created on the C++ side
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));				// same for the projection matrix
+
 	// make buffer active
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);										// make the 0th buffer active
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);						// associate the 0th attribute with buffer
 	glEnableVertexAttribArray(0);												// enable the vertex 0th attribute
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 	// draw array of vertex
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 36);											// 36 represent the number of triangle in this cube
 }
 
 
