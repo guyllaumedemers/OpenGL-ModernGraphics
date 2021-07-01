@@ -30,9 +30,9 @@ GLFWwindow* CreateWindow(const float& width, const float& height, const char* na
 	return glfwCreateWindow(width, height, name, NULL, NULL);
 }
 
-void GameLoop(GLFWwindow* window, void (*init)(GLFWwindow* window), void (*display)(GLFWwindow* window, double currentTime)) {
+void GameLoop(GLFWwindow* window, const char* vp, const char* fp, float model[], void (*init)(GLFWwindow* window, const char* vp, const char* fp, float model[]), void (*display)(GLFWwindow* window, double currentTime)) {
 	glfwSwapInterval(1);
-	init(window);
+	init(window, vp, fp, model);
 	while (!glfwWindowShouldClose(window)) {
 		display(window, glfwGetTime());
 		glfwSwapBuffers(window);
@@ -71,7 +71,7 @@ int main(int argc, char* argv) {
 		std::puts("GLEW lib not initialize");
 		exit(EXIT_FAILURE);
 	}
-	GameLoop(window, &init, &display);
+	GameLoop(window, "vs.shader", "fg.shader", vertexArr, &init, &display);
 	DestroyWindow(window);
 	return 0;
 }
