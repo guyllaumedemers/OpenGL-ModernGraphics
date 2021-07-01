@@ -47,6 +47,9 @@ void display(GLFWwindow* window, double currentTime) {
 int main(int argc, char* argv) {
 	GLFWwindow* window = CreateWindow(WIDTH, HEIGHT, "Window", MAJOR, MINOR);
 	glfwMakeContextCurrent(window);
+	if (glewInit() != GLEW_OK) {
+		exit(EXIT_FAILURE);
+	}
 	GameLoop(window, &init, &display);
 	DestroyWindow(window);
 	return 0;

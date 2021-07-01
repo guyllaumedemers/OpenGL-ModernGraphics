@@ -149,6 +149,12 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GLSLFileReader.h" />
+    <ClInclude Include="GLSLMatrix.h" />
+    <ClInclude Include="GLSLToolDebug.h" />
+    <ClInclude Include="Utilities.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
