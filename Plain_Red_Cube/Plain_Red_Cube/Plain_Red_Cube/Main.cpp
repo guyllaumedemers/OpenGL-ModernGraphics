@@ -1,6 +1,8 @@
 #pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <cstdlib>
 #include <cstdio>
 #include "Utilities.h"
@@ -19,6 +21,8 @@ GLuint vbo[numVBOs];
 
 float vertexArr[108] = {};
 
+glm::mat4 mvMat, perpMat;
+
 GLFWwindow* CreateWindow(const float& width, const float& height, const char* name, const float& major_version, const float& minor_version) {
 	if (!glfwInit()) {
 		std::puts("GLFW lib not initialize");
@@ -30,7 +34,9 @@ GLFWwindow* CreateWindow(const float& width, const float& height, const char* na
 	return glfwCreateWindow(width, height, name, NULL, NULL);
 }
 
-void GameLoop(GLFWwindow* window, const char* vp, const char* fp, float model[], void (*init)(GLFWwindow* window, const char* vp, const char* fp, float model[]), void (*display)(GLFWwindow* window, double currentTime)) {
+void GameLoop(GLFWwindow* window, const char* vp, const char* fp, float model[], void (*init)(GLFWwindow* window, const char* vp, const char* fp, float model[]),
+	void (*display)(GLFWwindow* window, double currentTime))
+{
 	glfwSwapInterval(1);
 	init(window, vp, fp, model);
 	while (!glfwWindowShouldClose(window)) {
@@ -46,7 +52,7 @@ void DestroyWindow(GLFWwindow* window) {
 	exit(EXIT_SUCCESS);
 }
 
-void SetupVertexArr(const float& numVAO, GLuint vao[], const float& numVBO, GLuint vbo[], float vArr[], int bIndex) {
+void SetupVertexArr(const float& numVAO, GLuint vao[], const float& numVBO, GLuint vbo[], float vArr[], int bIndex) {		// model arr are passed as copy...
 	glGenVertexArrays(numVAO, vao);
 	glBindVertexArray(vao[bIndex]);
 	glGenBuffers(numVBO, vbo);
@@ -60,7 +66,30 @@ void init(GLFWwindow* window, const char* vp, const char* fp, float model[]) {		
 	SetupVertexArr(numVAOs, vao, numVBOs, vbo, model, 0);
 }
 
-void display(GLFWwindow* window, double currentTime) {
+void Refresh(void) {
+	glClear(GL_DEPTH_BUFFER);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+glm::mat4 PerspectiveMat(GLFWwindow* window, const float& rad, const float& zNear, const float& zFar) {
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	return glm::perspective(rad, (float)width / (float)height, zNear, zFar);
+}
+
+glm::mat4 MvMat(glm::vec3& cam, glm::vec3& model) {
+	return glm::translate(glm::mat4(1.0f), cam) * glm::translate(glm::mat4(1.0f), model);
+}
+
+void display(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
+	glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model)
+{
+	Refresh();
+	mvLoc = glGetUniformLocation(rProg, mv);
+	projLoc = glGetUniformLocation(rProg, proj);
+	perpMat = PerspectiveMat(window, rad, zNear, zFar);
+	mvMat = MvMat(cam, model);
 
 }
 
