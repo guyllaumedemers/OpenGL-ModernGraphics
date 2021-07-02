@@ -2,10 +2,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <cstdlib>
+#include <cstdarg>
 #include <cstdio>
 #include <string>
+#include <vector>
 #include "GLSLToolDebug.h"
 #include "GLSLFileReader.h"
 
@@ -119,9 +122,41 @@ namespace Utilities {
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vArr), vArr, GL_STATIC_DRAW);
 	}
 
-	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[]) {
+	void SetupBufferArr(GLuint vbo[], int bIndex) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[bIndex]);
+		glVertexAttribPointer(bIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(bIndex);
+	}
+
+	void Draw(const GLenum& type, const int& count) {
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glDrawArrays(type, 0, count);
+	}
+
+	void SetupUniformMat(const GLuint& mvLoc, const GLuint& projLoc, const float& count, const float& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
+		glUniformMatrix4fv(mvLoc, count, transpose, glm::value_ptr(mvMat));
+		glUniformMatrix4fv(projLoc, count, transpose, glm::value_ptr(perpMat));
+	}
+
+	void SetupCamera(glm::vec3& cam, float& x, float& y, float& z) {
+		cam = glm::vec3(x, y, z);
+	}
+
+	void SetupModelsInCameraSpace(std::vector<glm::vec3> models, ...) {
+		va_list args;				// A place to store the list of arguments
+		va_start(args, models);		// Initializing arguments to store all values after models
+		for (int i = 0; i < models.size(); ++i) {
+			models[i] = va_arg(args, glm::vec3);
+		}
+		va_end(args);				// Cleans up the list
+	}
+
+	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[],
+		glm::vec3& cam, float& x, float& y, float& z, std::vector<glm::vec3> modelArrPos) {
 		rProg = Utilities::createShaderProgram(vp, fp);
-		// camera setup
+		SetupCamera(cam, x, y, z);
+		/*SetupModelsInCameraSpace(modelArrPos);*/
 		SetupVertexArr(numVAOs, vao, numVBOs, vbo, model, 0);
 	}
 
@@ -133,16 +168,16 @@ namespace Utilities {
 	}
 
 	void display(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model)
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model, GLuint vbo[], const int& count)
 	{
 		Refresh(rProg);
 		mvLoc = glGetUniformLocation(rProg, mv);
 		projLoc = glGetUniformLocation(rProg, proj);
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
 		mvMat = MvMat(cam, model);
-		// need to link both matrix to uniform in shader prog
-		// associate VBO with vertex attrib
-		// adjust OpenGL setting / draw model
+		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
+		SetupBufferArr(vbo, 0);
+		Draw(GL_TRIANGLES, count);
 	}
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[]) {
@@ -151,10 +186,10 @@ namespace Utilities {
 	}
 
 	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model)
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model, GLuint vbo[], const int& count)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, model);
+			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, model, vbo, count);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

@@ -34,7 +34,7 @@ int main(int argc, char* argv) {
 		exit(EXIT_FAILURE);
 	}
 	Utilities::PreGameLoop(window, renProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr);
-	Utilities::GameLoop(window, glfwGetTime(), mv_matrix, mvLoc, proj_matrix, projLoc, renProg, mvMat, perpMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, model);
+	Utilities::GameLoop(window, glfwGetTime(), mv_matrix, mvLoc, proj_matrix, projLoc, renProg, mvMat, perpMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, model, vbo, 36);
 	Utilities::DestroyWindow(window);
 	return 0;
 }
