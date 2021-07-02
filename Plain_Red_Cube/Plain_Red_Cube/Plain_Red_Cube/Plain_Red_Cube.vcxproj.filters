@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\res">
+      <UniqueIdentifier>{b1d1f099-253f-4fa8-98e3-74d8b7ef299a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\res\shader">
+      <UniqueIdentifier>{50e1edd2-0af4-4863-afe7-f2e6939e01e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -32,5 +38,13 @@
     <ClInclude Include="Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fp.shader">
+      <Filter>Resource Files\res\shader</Filter>
+    </None>
+    <None Include="vp.shader">
+      <Filter>Resource Files\res\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

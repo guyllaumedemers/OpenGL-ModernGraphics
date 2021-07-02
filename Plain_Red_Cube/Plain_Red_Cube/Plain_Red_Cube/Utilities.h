@@ -22,7 +22,7 @@ namespace Utilities {
 	}
 
 	glm::mat4 MvMat(glm::vec3& cam, glm::vec3& model) {
-		return glm::translate(glm::mat4(1.0f), cam) * glm::translate(glm::mat4(1.0f), model);
+		return glm::translate(glm::mat4(1.0f), -cam) * glm::translate(glm::mat4(1.0f), model);
 	}
 
 #if ShaderProgram
@@ -74,6 +74,9 @@ namespace Utilities {
 			GLSLToolDebug::PrintProgramLog(vfProgram);
 		}
 
+		glDetachShader(vfProgram, vShader);
+		glDetachShader(vfProgram, fShader);
+
 		return vfProgram;
 	}
 
@@ -114,17 +117,17 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVertexArr(const float& numVAO, GLuint vao[], const float& numVBO, GLuint vbo[], float vArr[], int bIndex) {
+	void SetupVertexArr(const float& numVAO, GLuint vao[], const float& numVBO, GLuint vbo[], float vertexArr[], int bIndex) {
 		glGenVertexArrays(numVAO, vao);
 		glBindVertexArray(vao[bIndex]);
 		glGenBuffers(numVBO, vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[bIndex]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vArr), vArr, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
 	}
 
-	void SetupBufferArr(GLuint vbo[], int bIndex) {
+	void SetupBufferArr(GLuint vbo[], const int& bIndex, const int& size) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[bIndex]);
-		glVertexAttribPointer(bIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(bIndex, size, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(bIndex);
 	}
 
@@ -158,16 +161,16 @@ namespace Utilities {
 		va_end(args);				// Cleans up the list
 	}
 
-	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[],
+	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float vertexArr[],
 		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
-		rProg = Utilities::createShaderProgram(vp, fp);
+		rProg = createShaderProgram(vp, fp);
 		SetupCamera(cam, x, y, z);
 		SetupModelInCameraSpace(modelpos, u, v, w);
-		SetupVertexArr(numVAOs, vao, numVBOs, vbo, model, 0);
+		SetupVertexArr(numVAOs, vao, numVBOs, vbo, vertexArr, 0);
 	}
 
 	void Refresh(GLuint& program) {
-		glClear(GL_DEPTH_BUFFER);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(program);
@@ -182,14 +185,14 @@ namespace Utilities {
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
 		mvMat = MvMat(cam, model);
 		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
-		SetupBufferArr(vbo, 0);
+		SetupBufferArr(vbo, 0, 3);
 		Draw(GL_TRIANGLES, count);
 	}
 
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[],
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float vertexArr[],
 		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
-		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, model, cam, x, y, z, modelpos, u, v, w);
+		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, cam, x, y, z, modelpos, u, v, w);
 	}
 
 	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
