@@ -100,7 +100,7 @@ namespace Utilities {
 
 #if main
 #endif
-	GLFWwindow* CreateWindow(const float& width, const float& height, const char* name, const float& major_version, const float& minor_version) {
+	GLFWwindow* CreateWindow(const float& width, const float& height, const char* name, const int& major_version, const int& minor_version) {
 		if (!glfwInit()) {
 			std::puts("GLFW lib not initialize");
 			exit(EXIT_FAILURE);
@@ -117,10 +117,10 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVertexArr(const float& numVAO, GLuint vao[], const float& numVBO, GLuint vbo[], float vertexArr[], int bIndex) {
-		glGenVertexArrays(numVAO, vao);
+	void SetupVertexArr(const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[], const int& bIndex) {
+		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[bIndex]);
-		glGenBuffers(numVBO, vbo);
+		glGenBuffers(numVBOs, vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[bIndex]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
 	}
@@ -137,7 +137,7 @@ namespace Utilities {
 		glDrawArrays(type, 0, count);
 	}
 
-	void SetupUniformMat(const GLuint& mvLoc, const GLuint& projLoc, const float& count, const float& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
+	void SetupUniformMat(GLuint& mvLoc, GLuint& projLoc, const float& count, const float& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
 		glUniformMatrix4fv(mvLoc, count, transpose, glm::value_ptr(mvMat));
 		glUniformMatrix4fv(projLoc, count, transpose, glm::value_ptr(perpMat));
 	}
@@ -161,7 +161,7 @@ namespace Utilities {
 		va_end(args);				// Cleans up the list
 	}
 
-	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float vertexArr[],
+	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
 		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		rProg = createShaderProgram(vp, fp);
 		SetupCamera(cam, x, y, z);
@@ -177,29 +177,29 @@ namespace Utilities {
 	}
 
 	void display(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model, GLuint vbo[], const int& count)
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const int& count)
 	{
 		Refresh(rProg);
 		mvLoc = glGetUniformLocation(rProg, mv);
 		projLoc = glGetUniformLocation(rProg, proj);
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
-		mvMat = MvMat(cam, model);
+		mvMat = MvMat(cam, modelpos);
 		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
 		SetupBufferArr(vbo, 0, 3);
 		Draw(GL_TRIANGLES, count);
 	}
 
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float vertexArr[],
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
 		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
 		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, cam, x, y, z, modelpos, u, v, w);
 	}
 
 	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& model, GLuint vbo[], const int& count)
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const int& count)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, model, vbo, count);
+			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, modelpos, vbo, count);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
