@@ -33,7 +33,7 @@ int main(int argc, char* argv) {
 		std::puts("GLEW lib not initialize");
 		exit(EXIT_FAILURE);
 	}
-	Utilities::PreGameLoop(window, renProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr);
+	Utilities::PreGameLoop(window, renProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, cam, 0.0f, 0.0f, 8.0f, model, 0.0f, -2.0f, 0.0f);
 	Utilities::GameLoop(window, glfwGetTime(), mv_matrix, mvLoc, proj_matrix, projLoc, renProg, mvMat, perpMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, model, vbo, 36);
 	Utilities::DestroyWindow(window);
 	return 0;

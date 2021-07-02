@@ -139,10 +139,16 @@ namespace Utilities {
 		glUniformMatrix4fv(projLoc, count, transpose, glm::value_ptr(perpMat));
 	}
 
-	void SetupCamera(glm::vec3& cam, float& x, float& y, float& z) {
+	// Set initial position const and use translation matrix when doing motion
+	void SetupCamera(glm::vec3& cam, const float& x, const float& y, const float& z) {
 		cam = glm::vec3(x, y, z);
 	}
 
+	void SetupModelInCameraSpace(glm::vec3& modelpos, const float& u, const float& v, const float& w) {
+		modelpos = glm::vec3(u, v, w);
+	}
+
+	// Trying to set the position in camera space for multiple objects... issues with implementation of variable arg list when encapsulated in other function calls
 	void SetupModelsInCameraSpace(std::vector<glm::vec3> models, ...) {
 		va_list args;				// A place to store the list of arguments
 		va_start(args, models);		// Initializing arguments to store all values after models
@@ -153,10 +159,10 @@ namespace Utilities {
 	}
 
 	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[],
-		glm::vec3& cam, float& x, float& y, float& z, std::vector<glm::vec3> modelArrPos) {
+		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		rProg = Utilities::createShaderProgram(vp, fp);
 		SetupCamera(cam, x, y, z);
-		/*SetupModelsInCameraSpace(modelArrPos);*/
+		SetupModelInCameraSpace(modelpos, u, v, w);
 		SetupVertexArr(numVAOs, vao, numVBOs, vbo, model, 0);
 	}
 
@@ -180,9 +186,10 @@ namespace Utilities {
 		Draw(GL_TRIANGLES, count);
 	}
 
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[]) {
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const int& numVAOs, GLuint vao[], const int& numVBOs, GLuint vbo[], float model[],
+		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
-		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, model);
+		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, model, cam, x, y, z, modelpos, u, v, w);
 	}
 
 	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
