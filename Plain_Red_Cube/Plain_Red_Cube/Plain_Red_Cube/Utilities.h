@@ -1,6 +1,11 @@
 #pragma once
-#include <iostream>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <cstdlib>
+#include <cstdio>
+#include <string>
 #include "GLSLToolDebug.h"
 #include "GLSLFileReader.h"
 

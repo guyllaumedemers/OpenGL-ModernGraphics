@@ -1,10 +1,4 @@
 #pragma once
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <cstdlib>
-#include <cstdio>
 #include "Utilities.h"
 
 #define WIDTH 600
