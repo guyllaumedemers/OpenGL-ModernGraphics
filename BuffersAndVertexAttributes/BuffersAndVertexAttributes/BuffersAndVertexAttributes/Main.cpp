@@ -155,7 +155,7 @@ void display(GLFWwindow* window, double currentTime) {
 	pMat = glm::perspective(rad, aspectRatio, 0.1f, 1000.0f);					// camera
 
 	// build view matrix, model matrix and MV
-	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-camX, -camY, -camZ));						// create an identity matrix and multiply by the translate vec3
+	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-camX, -camY, -camZ));						// create an identity matrix and insert the vec3 as A03 A13 A23 A33
 	mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
 	mvMat = vMat * mMat;
 

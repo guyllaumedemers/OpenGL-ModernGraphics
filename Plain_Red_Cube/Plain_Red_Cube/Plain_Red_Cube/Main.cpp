@@ -9,12 +9,14 @@
 #define numVAOs 1
 #define numVBOs 2
 
+#define vArrLength 108
+
 GLuint renProg;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
-float vertexArr[] = {
--1.0f,-1.0f,-1.0f,
+float vertexArr[vArrLength] = {			// Cube array
+	-1.0f,-1.0f,-1.0f,
 	-1.0f,-1.0f, 1.0f,
 	-1.0f, 1.0f, 1.0f,
 	1.0f, 1.0f,-1.0f,
@@ -54,7 +56,7 @@ float vertexArr[] = {
 
 glm::mat4 mvMat, perpMat;
 glm::vec3 cam, modelpos;
-GLuint mvLoc, projLoc;
+GLint mvLoc, projLoc;
 
 const char* vp = "vp.shader";
 const char* fp = "fp.shader";
@@ -69,7 +71,7 @@ int main(int argc, char* argv) {
 		std::puts("GLEW lib not initialize");
 		exit(EXIT_FAILURE);
 	}
-	Utilities::PreGameLoop(window, renProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, cam, 0.0f, 0.0f, 8.0f, modelpos, 0.0f, -2.0f, 0.0f);
+	Utilities::PreGameLoop(window, renProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, cam, 0.0f, 0.0f, 8.0f, modelpos, 0.0f, -2.0f, 0.0f);
 	Utilities::GameLoop(window, glfwGetTime(), mv_matrix, mvLoc, proj_matrix, projLoc, renProg, mvMat, perpMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, modelpos, vbo, 36);
 	Utilities::DestroyWindow(window);
 	return 0;

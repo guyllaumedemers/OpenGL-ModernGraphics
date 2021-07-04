@@ -57,7 +57,7 @@ namespace Utilities {
 		GLSLToolDebug::CheckOpenGLError();
 		glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
 		if (fragCompiled != 1) {
-			std::cout << "vertex compilation failed" << std::endl;
+			std::cout << "fragment compilation failed" << std::endl;
 			GLSLToolDebug::PrintShaderLog(fShader);
 		}
 
@@ -100,7 +100,7 @@ namespace Utilities {
 
 #if main
 #endif
-	GLFWwindow* CreateWindow(const float& width, const float& height, const char* name, const int& major_version, const int& minor_version) {
+	GLFWwindow* CreateWindow(const int& width, const int& height, const char* name, const int& major_version, const int& minor_version) {
 		if (!glfwInit()) {
 			std::puts("GLFW lib not initialize");
 			exit(EXIT_FAILURE);
@@ -117,12 +117,12 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVertexArr(const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[], const int& bIndex) {
+	void SetupVertexArr(const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[], const int& vArrLength, const int& bIndex) {
 		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[bIndex]);
 		glGenBuffers(numVBOs, vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[bIndex]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexArr), vertexArr, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vArrLength, vertexArr, GL_STATIC_DRAW);
 	}
 
 	void SetupBufferArr(GLuint vbo[], const int& bIndex, const int& size) {
@@ -131,13 +131,13 @@ namespace Utilities {
 		glEnableVertexAttribArray(bIndex);
 	}
 
-	void Draw(const GLenum& type, const int& count) {
+	void Draw(const GLenum& mode, const GLsizei& count) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-		glDrawArrays(type, 0, count);
+		glDrawArrays(mode, 0, count);
 	}
 
-	void SetupUniformMat(GLuint& mvLoc, GLuint& projLoc, const float& count, const float& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
+	void SetupUniformMat(GLint& mvLoc, GLint& projLoc, const GLsizei& count, const GLboolean& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
 		glUniformMatrix4fv(mvLoc, count, transpose, glm::value_ptr(mvMat));
 		glUniformMatrix4fv(projLoc, count, transpose, glm::value_ptr(perpMat));
 	}
@@ -162,11 +162,11 @@ namespace Utilities {
 	}
 
 	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
-		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
+		const int& vArrLength, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		rProg = createShaderProgram(vp, fp);
 		SetupCamera(cam, x, y, z);
 		SetupModelInCameraSpace(modelpos, u, v, w);
-		SetupVertexArr(numVAOs, vao, numVBOs, vbo, vertexArr, 0);
+		SetupVertexArr(numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, 0);
 	}
 
 	void Refresh(GLuint& program) {
@@ -176,8 +176,8 @@ namespace Utilities {
 		glUseProgram(program);
 	}
 
-	void display(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const int& count)
+	void display(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const GLsizei& count)
 	{
 		Refresh(rProg);
 		mvLoc = glGetUniformLocation(rProg, mv);
@@ -190,13 +190,13 @@ namespace Utilities {
 	}
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
-		glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
+		const int& vArrLength, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
-		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, cam, x, y, z, modelpos, u, v, w);
+		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, cam, x, y, z, modelpos, u, v, w);
 	}
 
-	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLuint& mvLoc, const char* proj, GLuint& projLoc, GLuint& rProg,
-		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const int& count)
+	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const GLsizei& count)
 	{
 		while (!glfwWindowShouldClose(window)) {
 			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, modelpos, vbo, count);
