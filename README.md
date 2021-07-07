@@ -19,6 +19,7 @@ NOTE : This project is broken down into multiples folders, each representing a s
 4.  Reading GLSL Source from Files
 5.  Drawing a Triangle
 6.  Simple Animation Example
+7.  Plain Red Cube
 
 ```
 NOTE : Scripts created by myself can be found here.
