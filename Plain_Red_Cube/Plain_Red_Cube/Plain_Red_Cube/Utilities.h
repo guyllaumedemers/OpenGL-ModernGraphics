@@ -21,14 +21,28 @@ namespace Utilities {
 		return glm::perspective(rad, (float)width / (float)height, zNear, zFar);
 	}
 
-	glm::mat4 MvMat(glm::vec3& cam, glm::vec3& model) {
+	// temp - can be parametrized better
+	glm::mat4 ModelMat(const float& x, const float& y, const float& z, const float& transf, const float& rotf) {
+		float time = glfwGetTime();
+		glm::mat4 transMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(x * time) * transf, cos(y * time) * transf, sin(z * time) * transf));
+		glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), rotf * time, glm::vec3(1.0f, 0.0f, 0.0f));
+		rotMat = glm::rotate(rotMat, rotf * time, glm::vec3(0.0f, 1.0f, 0.0f));
+		rotMat = glm::rotate(rotMat, rotf * time, glm::vec3(0.0f, 0.0f, 1.0f));
+		return rotMat * transMat;
+	}
+
+	glm::mat4 StaticMvMat(glm::vec3& cam, glm::vec3& model) {
 		return glm::translate(glm::mat4(1.0f), -cam) * glm::translate(glm::mat4(1.0f), model);
+	}
+
+	glm::mat4 DynamicMvMat(glm::vec3& cam, const float& x, const float& y, const float& z, const float& transf, const float& rotf) {
+		return glm::translate(glm::mat4(1.0f), -cam) * ModelMat(x, y, z, transf, rotf);
 	}
 
 #if ShaderProgram
 #endif
 	// Take a vertex Shader and a fragment shader as args
-	GLuint createShaderProgram(const char* vp, const char* fp) {
+	GLuint CreateShaderProgram(const char* vp, const char* fp) {
 		GLint vertCompiled;
 		GLint fragCompiled;
 		GLint linked;
@@ -81,19 +95,19 @@ namespace Utilities {
 	}
 
 	// Take a vertex Shader, a geometry shader and a fragment shader as args
-	GLuint createShaderProgram(const char* vp, const char* gp, const char* fp) {
+	GLuint CreateShaderProgram(const char* vp, const char* gp, const char* fp) {
 		// fill in later
 		return 0;
 	}
 
 	// Take a vertex Shader, tessellation and a fragment shader as args
-	GLuint createShaderProgram(const char* vp, const char* tCS, const char* tES, const char* fp) {
+	GLuint CreateShaderProgram(const char* vp, const char* tCS, const char* tES, const char* fp) {
 		// fill in later
 		return 0;
 	}
 
 	// Take a vertex Shader, tessellation, a geometry shader and a fragment shader as args
-	GLuint createShaderProgram(const char* vp, const char* tCS, const char* tES, const char* gp, const char* fp) {
+	GLuint CreateShaderProgram(const char* vp, const char* tCS, const char* tES, const char* gp, const char* fp) {
 		// fill in later
 		return 0;
 	}
@@ -161,9 +175,9 @@ namespace Utilities {
 		va_end(args);				// Cleans up the list
 	}
 
-	void init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
+	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
 		const int& vArrLength, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
-		rProg = createShaderProgram(vp, fp);
+		rProg = CreateShaderProgram(vp, fp);
 		SetupCamera(cam, x, y, z);
 		SetupModelInCameraSpace(modelpos, u, v, w);
 		SetupVertexArr(numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, 0);
@@ -176,14 +190,28 @@ namespace Utilities {
 		glUseProgram(program);
 	}
 
-	void display(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
+	void StaticDisplay(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
 		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const GLsizei& count)
 	{
 		Refresh(rProg);
 		mvLoc = glGetUniformLocation(rProg, mv);
 		projLoc = glGetUniformLocation(rProg, proj);
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
-		mvMat = MvMat(cam, modelpos);
+		mvMat = StaticMvMat(cam, modelpos);
+		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
+		SetupBufferArr(vbo, 0, 3);
+		Draw(GL_TRIANGLES, count);
+	}
+
+	void DynamicDisplay(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
+		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z,
+		const float& transf, const float& rotf, GLuint vbo[], const GLsizei& count)
+	{
+		Refresh(rProg);
+		mvLoc = glGetUniformLocation(rProg, mv);
+		projLoc = glGetUniformLocation(rProg, proj);
+		perpMat = PerspectiveMat(window, rad, zNear, zFar);
+		mvMat = DynamicMvMat(cam, x, y, z, transf, rotf);
 		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
 		SetupBufferArr(vbo, 0, 3);
 		Draw(GL_TRIANGLES, count);
@@ -192,14 +220,15 @@ namespace Utilities {
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
 		const int& vArrLength, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
-		init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, cam, x, y, z, modelpos, u, v, w);
+		Init(window, rProg, vp, fp, numVAOs, vao, numVBOs, vbo, vertexArr, vArrLength, cam, x, y, z, modelpos, u, v, w);
 	}
 
+	// temp mod to test the model matrix that update position over time
 	void GameLoop(GLFWwindow* window, const double& currentTime, const char* mv, GLint& mvLoc, const char* proj, GLint& projLoc, GLuint& rProg,
 		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const GLsizei& count)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			display(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, modelpos, vbo, count);
+			DynamicDisplay(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, 0.35f, 0.52f, 0.7f, 2.0f, 1.75f, vbo, count);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
