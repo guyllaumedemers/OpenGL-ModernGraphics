@@ -22,21 +22,20 @@ namespace Utilities {
 	}
 
 	// temp - can be parametrized better
-	glm::mat4 ModelMat(const float& x, const float& y, const float& z, const float& transf, const float& rotf) {
-		float time = glfwGetTime();
+	glm::mat4 ModelMat(const float& x, const float& y, const float& z, const float& transf, const float& rotf, const float& time) {
 		glm::mat4 transMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(x * time) * transf, cos(y * time) * transf, sin(z * time) * transf));
 		glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), rotf * time, glm::vec3(1.0f, 0.0f, 0.0f));
 		rotMat = glm::rotate(rotMat, rotf * time, glm::vec3(0.0f, 1.0f, 0.0f));
 		rotMat = glm::rotate(rotMat, rotf * time, glm::vec3(0.0f, 0.0f, 1.0f));
-		return rotMat * transMat;
+		return transMat * rotMat;		// the order impact on the returned behaviour - you either translate first and rotate or the other way around
 	}
 
 	glm::mat4 StaticMvMat(glm::vec3& cam, glm::vec3& model) {
 		return glm::translate(glm::mat4(1.0f), -cam) * glm::translate(glm::mat4(1.0f), model);
 	}
 
-	glm::mat4 DynamicMvMat(glm::vec3& cam, const float& x, const float& y, const float& z, const float& transf, const float& rotf) {
-		return glm::translate(glm::mat4(1.0f), -cam) * ModelMat(x, y, z, transf, rotf);
+	glm::mat4 DynamicMvMat(glm::vec3& cam, const float& x, const float& y, const float& z, const float& transf, const float& rotf, const float& time) {
+		return glm::translate(glm::mat4(1.0f), -cam) * ModelMat(x, y, z, transf, rotf, time);
 	}
 
 #if ShaderProgram
@@ -211,10 +210,12 @@ namespace Utilities {
 		mvLoc = glGetUniformLocation(rProg, mv);
 		projLoc = glGetUniformLocation(rProg, proj);
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
-		mvMat = DynamicMvMat(cam, x, y, z, transf, rotf);
-		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
-		SetupBufferArr(vbo, 0, 3);
-		Draw(GL_TRIANGLES, count);
+		for (int i = 0; i < 24; ++i) {
+			mvMat = DynamicMvMat(cam, x, y, z, transf, rotf, glfwGetTime() + i);
+			SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
+			SetupBufferArr(vbo, 0, 3);
+			Draw(GL_TRIANGLES, count);
+		}
 	}
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
@@ -228,7 +229,7 @@ namespace Utilities {
 		glm::mat4& mvMat, glm::mat4& perpMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, glm::vec3& modelpos, GLuint vbo[], const GLsizei& count)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			DynamicDisplay(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, 0.35f, 0.52f, 0.7f, 2.0f, 1.75f, vbo, count);
+			DynamicDisplay(window, currentTime, mv, mvLoc, proj, projLoc, rProg, mvMat, perpMat, rad, zNear, zFar, cam, 0.35f, 0.52f, 0.7f, 8.0f, 1.75f, vbo, count);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
