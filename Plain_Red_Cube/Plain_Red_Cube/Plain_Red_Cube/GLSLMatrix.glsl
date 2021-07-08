@@ -1,11 +1,10 @@
 #pragma once
-#include <glm/glm.hpp>
 
 namespace GLSLMatrix {
 
 	// translation matrix
-	glm::mat4 Translate(float x, float y, float z) {
-		glm::mat4 trans = glm::mat4(
+	mat4 Translate(float x, float y, float z) {
+		mat4 trans = mat4(
 			1.0, 0.0, 0.0, 0.0,
 			0.0, 1.0, 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
@@ -15,8 +14,8 @@ namespace GLSLMatrix {
 	}
 
 	// rotation matrix
-	glm::mat4 RotateX(float rad) {
-		glm::mat4 xRot = glm::mat4(
+	mat4 RotateX(float rad) {
+		mat4 xRot = mat4(
 			1.0, 0.0, 0.0, 0.0,
 			0.0, cos(rad), -sin(rad), 0.0,
 			0.0, sin(rad), cos(rad), 0.0,
@@ -25,8 +24,8 @@ namespace GLSLMatrix {
 		return xRot;
 	}
 
-	glm::mat4 RotateY(float rad) {
-		glm::mat4 yRot = glm::mat4(
+	mat4 RotateY(float rad) {
+		mat4 yRot = mat4(
 			cos(rad), 0.0, sin(rad), 0.0,
 			0.0, 1.0, 0.0, 0.0,
 			-sin(rad), 0.0, cos(rad), 0.0,
@@ -35,8 +34,8 @@ namespace GLSLMatrix {
 		return yRot;
 	}
 
-	glm::mat4 RotateZ(float rad) {
-		glm::mat4 zRot = glm::mat4(
+	mat4 RotateZ(float rad) {
+		mat4 zRot = mat4(
 			cos(rad), -sin(rad), 0.0, 0.0,
 			sin(rad), cos(rad), 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
@@ -46,8 +45,8 @@ namespace GLSLMatrix {
 	}
 
 	// scale matrix
-	glm::mat4 Scale(float x, float y, float z) {
-		glm::mat4 scale = glm::mat4(
+	mat4 Scale(float x, float y, float z) {
+		mat4 scale = mat4(
 			x, 0.0, 0.0, 0.0,
 			0.0, y, 0.0, 0.0,
 			0.0, 0.0, z, 0.0,

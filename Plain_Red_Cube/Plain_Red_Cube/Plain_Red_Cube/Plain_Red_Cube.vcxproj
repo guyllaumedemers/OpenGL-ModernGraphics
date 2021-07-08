@@ -151,7 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLSLFileReader.h" />
-    <ClInclude Include="GLSLMatrix.h" />
+    <ClInclude Include="GLSLMatrix.glsl" />
     <ClInclude Include="GLSLToolDebug.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>

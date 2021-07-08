@@ -29,7 +29,7 @@
     <ClInclude Include="GLSLFileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLSLMatrix.h">
+    <ClInclude Include="GLSLMatrix.glsl">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GLSLToolDebug.h">

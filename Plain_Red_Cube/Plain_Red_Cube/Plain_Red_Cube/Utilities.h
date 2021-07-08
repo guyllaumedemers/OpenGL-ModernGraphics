@@ -147,7 +147,7 @@ namespace Utilities {
 	void Draw(const GLenum& mode, const GLsizei& count) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
-		glDrawArrays(mode, 0, count);
+		glDrawArraysInstanced(mode, 0, count, 24);
 	}
 
 	void SetupUniformMat(GLint& mvLoc, GLint& projLoc, const GLsizei& count, const GLboolean& transpose, glm::mat4& mvMat, glm::mat4& perpMat) {
@@ -210,12 +210,10 @@ namespace Utilities {
 		mvLoc = glGetUniformLocation(rProg, mv);
 		projLoc = glGetUniformLocation(rProg, proj);
 		perpMat = PerspectiveMat(window, rad, zNear, zFar);
-		for (int i = 0; i < 24; ++i) {
-			mvMat = DynamicMvMat(cam, x, y, z, transf, rotf, glfwGetTime() + i);
-			SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
-			SetupBufferArr(vbo, 0, 3);
-			Draw(GL_TRIANGLES, count);
-		}
+		mvMat = DynamicMvMat(cam, x, y, z, transf, rotf, glfwGetTime());
+		SetupUniformMat(mvLoc, projLoc, 1, GL_FALSE, mvMat, perpMat);
+		SetupBufferArr(vbo, 0, 3);
+		Draw(GL_TRIANGLES, count);
 	}
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
