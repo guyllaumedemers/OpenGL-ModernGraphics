@@ -10,27 +10,25 @@
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
-const char* uniform_modelview_matrix = "mv_matrix";
-const char* uniform_proj_matrix = "proj_matrix";
+const char* mvp_uniform = "mvp_matrix";
 
-GLint mvLoc, projLoc;
+GLint mvpLoc;
 
-GLuint ren;
+GLuint rProg;
 const char* vp = "vp.shader";
 const char* fp = "fp.shader";
 
-glm::mat4 projMat, viewMat;
-glm::vec3 cam;
+glm::mat4 pv_matrix, mvp_matrix;
+glm::vec3 cam{ 0.0f, 0.0f, 8.0f };
 
-std::vector<glm::vec3> modelArrPos(numVBOs);
-
-std::vector<GLsizei> modelLengthArray = {
-	cubeArrLength,
-	pyramidArrLength
+std::vector<glm::vec3> model_positions{
+	glm::vec3{0.0f,-2.0f,0.0f},
+	glm::vec3{2.0f,4.0f,0.0f}
 };
 
-void SetupVetices() {
-	float cubePos[cubeArrLength] = {
+std::vector<std::vector<float>> models{
+	// Cube
+	{
 		-1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 		1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
 		1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
@@ -43,27 +41,17 @@ void SetupVetices() {
 		1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
 		-1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
 		1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
-	};
-
-	float pyramidPos[pyramidArrLength] = {
+	},
+	// Pyramide
+	{
 		 -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 		1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 		1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 		-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 		-1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
 		1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f
-	};
-
-	glGenVertexArrays(numVAOs, vao);
-	glBindVertexArray(vao[0]);
-	glGenBuffers(numVBOs, vbo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cubeArrLength, cubePos, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * pyramidArrLength, pyramidPos, GL_STATIC_DRAW);
-}
+	}
+};
 
 int main(int argc, char* argv) {
 	GLFWwindow* window = Utilities::CreateWindow(600, 400, "window", 4, 3);
@@ -74,8 +62,8 @@ int main(int argc, char* argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	Utilities::PreGameLoop(window, ren, vp, fp, numVAOs, vao, numVBOs, vbo, SetupVetices, viewMat, projMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, 0.0f, 0.0f, 8.0f, Utilities::SetupModelArrInCameraSpace, modelArrPos);
-	Utilities::GameLoop(window, ren, vbo, modelArrPos, modelLengthArray, uniform_modelview_matrix, mvLoc, uniform_proj_matrix, projLoc, projMat, cam);
+	Utilities::PreGameLoop(window, rProg, vp, fp, pv_matrix, cam, glm::radians(60.0f), 0.1f, 1000.0f, models, numVAOs, vao, numVBOs, vbo);
+	Utilities::GameLoop(window, rProg, pv_matrix, model_positions, mvpLoc, mvp_uniform, vbo, models, GL_TRIANGLES);
 	Utilities::DestroyWindow(window);
 	return 0;
 }

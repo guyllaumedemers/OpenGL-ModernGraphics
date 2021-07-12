@@ -125,78 +125,59 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupCamera(glm::vec3& cam, const float& x, const float& y, const float& z) {
-		cam = glm::vec3(x, y, z);
-	}
+	void SetupVetices(std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 
-	// Trying to set the position in camera space for multiple objects... issues with implementation of variable arg list when encapsulated in other function calls
-	void SetupModelArrInCameraSpace(std::vector<glm::vec3> models, ...) {
-		va_list args;				// A place to store the list of arguments
-		va_start(args, models);		// Initializing arguments to store all values after models
+		glGenVertexArrays(numVAOs, vao);
+		glBindVertexArray(vao[0]);
+		glGenBuffers(numVBOs, vbo);
+
 		for (int i = 0; i < models.size(); ++i) {
-			models[i] = va_arg(args, glm::vec3);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (models[i].size() - 1), &models[i], GL_STATIC_DRAW);
 		}
-		va_end(args);				// Cleans up the list
 	}
 
-	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, GLuint vao[], const GLsizei& numVAOs, GLuint vbo[], const GLsizei& numVBOs, void (*SetupVertices)(), glm::mat4& vMat, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, void (*SetupModelsInCameraSpace)(std::vector<glm::vec3>, ...), std::vector<glm::vec3> modelsArr) {
+	void Draw(const GLenum& type, const GLint& first, const GLint& polygons_count) {
+		glEnable(GLFW_DEPTH_BITS);
+		glDepthFunc(GL_LEQUAL);
+		glDrawArrays(type, first, polygons_count);
+	}
+
+	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, glm::vec3& cam, const float& rad, const float& zNear, const float& zFar,
+		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
-		projMat = CreatePerspectiveMatrix(window, rad, zNear, zFar);
-		SetupCamera(cam, x, y, z);
-		(*SetupModelsInCameraSpace)(modelsArr, glm::vec3{ 0.0f,-2.0f ,0.0f }, glm::vec3{ 4.0f,4.0f ,0.0f });		// sketchy since im doing it by hand
-		(*SetupVertices)();
+		pv_matrix = CreatePerspectiveMatrix(window, rad, zNear, zFar) * CreateViewMatrix(cam);
+		SetupVetices(models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void SetVM_Mat(GLuint& rProg, glm::mat4& projMat, glm::vec3& cam, glm::vec3& modelpos, const GLsizei& modelVerticesLength, GLint& mvLoc, GLint& projLoc, const GLuint vbo[], const int& index) {
-		glm::mat4 mvMat = CreateModelViewMatrix(cam, modelpos);
-
-		glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projMat));
+	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mpvLoc, const char* mpv_uniform, GLuint vbo[], const int& index,
+		const GLenum& type, const GLint& first, const GLint& polygons_count) {
+		glm::mat4 mpv_matrix = pv_matrix * CreateModelMatrix(model);
+		mpvLoc = glGetUniformLocation(rProg, mpv_uniform);
+		glUniform4fv(mpvLoc, 1, glm::value_ptr(mpv_matrix));
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[index]);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glDrawArrays(GL_TRIANGLES, 0, modelVerticesLength);
+		Draw(type, first, polygons_count);
 	}
 
-	void Refresh(GLuint& program) {
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(program);
-	}
+#if game
+#endif
 
-	void Display(GLFWwindow* window, GLuint& rProg, GLuint vbo[], std::vector<glm::vec3> modelArrPos, std::vector<GLsizei> modelLengthArray, const char* u_mvMatrix,
-		GLint& mvLoc, const char* u_proj, GLint& projLoc, glm::mat4& projMat, glm::vec3& cam)
-	{
-		Refresh(rProg);
-		mvLoc = glGetUniformLocation(rProg, u_mvMatrix);
-		projLoc = glGetUniformLocation(rProg, u_proj);
-		try {
-			for (int i = 0; i < modelArrPos.size(); ++i) {
-				SetVM_Mat(rProg, projMat, cam, modelArrPos[i], modelLengthArray[i], mvLoc, projLoc, vbo, i);
-			}
-		}
-		catch (const std::out_of_range& oor) {
-			std::cerr << "Out of Range error: " << oor.what() << '\n';
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], void (*SetupVertices)(),
-		glm::mat4& vMat, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, void (*SetupModelsInCameraSpace)(std::vector<glm::vec3>, ...), std::vector<glm::vec3> modelsArr) {
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, glm::vec3 cam, const float& rad, const float& zNear, const float& zFar,
+		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		glfwSwapInterval(1);
-		Init(window, rProg, vp, fp, vao, numVAOs, vbo, numVBOs, SetupVertices, vMat, projMat, rad, zNear, zFar, cam, x, y, z, SetupModelsInCameraSpace, modelsArr);
+		Init(window, rProg, vp, fp, pv_matrix, cam, rad, zNear, zFar, models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void GameLoop(GLFWwindow* window, GLuint& rProg, GLuint vbo[], std::vector<glm::vec3> modelArrPos, std::vector<GLsizei> modelLengthArray,
-		const char* u_mvMatrix, GLint& mvLoc, const char* u_proj, GLint& projLoc, glm::mat4& projMat, glm::vec3& cam)
+	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& pv_matrix, std::vector<glm::vec3> model_positions, GLint& mpvLoc, const char* mpv_uniform, GLuint vbo[],
+		std::vector<std::vector<float>> models, const GLenum& type)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			Display(window, rProg, vbo, modelArrPos, modelLengthArray, u_mvMatrix, mvLoc, u_proj, projLoc, projMat, cam);
+			for (int i = 0; i < model_positions.size(); ++i) {
+				Display(rProg, pv_matrix, model_positions[i], mpvLoc, mpv_uniform, vbo, i, type, 0, models[i].size() - 1);
+			}
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
