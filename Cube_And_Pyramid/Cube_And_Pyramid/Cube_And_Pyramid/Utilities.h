@@ -143,6 +143,13 @@ namespace Utilities {
 		glDrawArrays(type, first, polygons_count);
 	}
 
+	void Refresh(const GLuint& rProg) {
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(rProg);
+	}
+
 	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, glm::vec3& cam, const float& rad, const float& zNear, const float& zFar,
 		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
@@ -152,6 +159,7 @@ namespace Utilities {
 
 	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mpvLoc, const char* mpv_uniform, GLuint vbo[], const int& index,
 		const GLenum& type, const GLint& first, const GLint& polygons_count) {
+		Refresh(rProg);
 		glm::mat4 mpv_matrix = pv_matrix * CreateModelMatrix(model);
 		mpvLoc = glGetUniformLocation(rProg, mpv_uniform);
 		glUniform4fv(mpvLoc, 1, glm::value_ptr(mpv_matrix));
