@@ -63,7 +63,7 @@ float vArr[vertexArrLength] = {
 	-1.0f, 1.0f, 1.0f,
 	1.0f,-1.0f, 1.0f
 };
-
+int i = 0;
 
 int main(int argc, char* argv) {
 	GLFWwindow* window = Utilities::CreateWindow(600, 400, "window", 4, 3);
@@ -74,7 +74,7 @@ int main(int argc, char* argv) {
 		exit(EXIT_FAILURE);
 	}
 	Utilities::PreGameLoop(window, renderingProgram, vp, fp, numVAOs, vao, numVBOs, vbo, vArr, vertexArrLength, projMat, glm::radians(60.0f), 0.1f, 1000.0f, cam, 0.0f, 0.0f, 8.0f, modelpos, 0.0f, -2.0f, 0.0f);
-	Utilities::GameLoop(window, renderingProgram, vbo, view_matrix, vLoc, viewMat, model_matrix, mLoc, modelMat, proj_matrix, projLoc, projMat, uniform_time, timeLoc, float(glfwGetTime()), cam, modelpos, 36, 1);
+	Utilities::GameLoop(window, renderingProgram, vbo, view_matrix, vLoc, viewMat, model_matrix, mLoc, modelMat, proj_matrix, projLoc, projMat, uniform_time, timeLoc, cam, modelpos, 36, 24);
 	Utilities::DestroyWindow(window);
 
 	return 0;

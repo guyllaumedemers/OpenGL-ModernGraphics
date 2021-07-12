@@ -155,9 +155,9 @@
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fp.shader" />
     <None Include="mat4_glsl_util\GLSLMatrix.glsl" />
-    <None Include="shader\fp.shader" />
-    <None Include="shader\vp.shader" />
+    <None Include="vp.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

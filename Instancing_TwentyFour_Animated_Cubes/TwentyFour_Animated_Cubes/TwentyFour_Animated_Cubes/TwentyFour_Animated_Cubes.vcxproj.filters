@@ -40,14 +40,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\fp.shader">
-      <Filter>Resource Files\res\shader</Filter>
-    </None>
-    <None Include="shader\vp.shader">
-      <Filter>Resource Files\res\shader</Filter>
-    </None>
     <None Include="mat4_glsl_util\GLSLMatrix.glsl">
       <Filter>Resource Files\res\mat4_glsl</Filter>
+    </None>
+    <None Include="fp.shader">
+      <Filter>Resource Files\res\shader</Filter>
+    </None>
+    <None Include="vp.shader">
+      <Filter>Resource Files\res\shader</Filter>
     </None>
   </ItemGroup>
 </Project>

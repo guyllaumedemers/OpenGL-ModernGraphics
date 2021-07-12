@@ -50,20 +50,21 @@ mat4 RotateZ(float rad) {
 }
 
 void main(void) {
+
 	float i = gl_InstanceID + time;
 	float a = sin(2.0 * i) * 8.0;
 	float b = sin(3.0 * i) * 8.0;
 	float c = sin(4.0 * i) * 8.0;
 
-	mat4 localRotX = RotateX(1000 * i);
-	mat4 localRotY = RotateY(1000 * i);
-	mat4 localRotZ = RotateZ(1000 * i);
+	mat4 localRotX = RotateX(1.04 * i);
+	mat4 localRotY = RotateY(1.04 * i);
+	mat4 localRotZ = RotateZ(1.04 * i);
 
 	mat4 localT = Translate(a, b, c);
 
 	mat4 model_Mat = model_matrix * localT * localRotX * localRotY * localRotZ;
 	mat4 mvMat = view_matrix * model_Mat;
 
-	gl_Position = (proj_matrix * mvMat) * vec4(position, 1.0);
+	gl_Position = proj_matrix * mvMat * vec4(position, 1.0);
 	varyingColor = vec4(position, 1.0) * 0.5 + vec4(0.5, 0.5, 0.5, 0.5);
 }

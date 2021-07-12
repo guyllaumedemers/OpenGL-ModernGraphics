@@ -125,7 +125,7 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVertexArr(GLuint vao[], const GLsizei& numVAOs, GLuint vbo[], const GLsizei& numVBOs, float vertexArr[], const int& vArrLength, const int& bIndex) {
+	void SetupVertexArr(GLuint vao[], const GLsizei& numVAOs, GLuint vbo[], const GLsizei& numVBOs, float vertexArr[], const GLsizei& vArrLength, const int& bIndex) {
 		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[bIndex]);
 		glGenBuffers(numVBOs, vbo);
@@ -171,7 +171,7 @@ namespace Utilities {
 	}
 
 	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, GLuint vao[], const GLsizei& numVAOs, GLuint vbo[], const GLsizei& numVBOs, float vertexArr[],
-		const int& vArrLength, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
+		const GLsizei& vArrLength, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		rProg = CreateShaderProgram(vp, fp);
 		projMat = PerspectiveMat(window, rad, zNear, zFar);
 		SetupCamera(cam, x, y, z);
@@ -202,16 +202,16 @@ namespace Utilities {
 	}
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[], float vertexArr[],
-		const int& vArrLength, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
+		const GLsizei& vArrLength, glm::mat4& projMat, const float& rad, const float& zNear, const float& zFar, glm::vec3& cam, const float& x, const float& y, const float& z, glm::vec3& modelpos, const float& u, const float& v, const float& w) {
 		glfwSwapInterval(1);
 		Init(window, rProg, vp, fp, vao, numVAOs, vbo, numVBOs, vertexArr, vArrLength, projMat, rad, zNear, zFar, cam, x, y, z, modelpos, u, v, w);
 	}
 
 	void GameLoop(GLFWwindow* window, GLuint& rProg, GLuint vbo[], const char* u_view, GLint& vLoc, glm::mat4& viewMat, const char* u_model, GLint& mLoc, glm::mat4& modelMat, const char* u_proj, GLint& projLoc,
-		glm::mat4& projMat, const char* u_time, GLint& timeLoc, const float& currentTime, glm::vec3& cam, glm::vec3& modelpos, const GLsizei& polygon_count, const GLsizei& primitive_count)
+		glm::mat4& projMat, const char* u_time, GLint& timeLoc, glm::vec3& cam, glm::vec3& modelpos, const GLsizei& polygon_count, const GLsizei& primitive_count)
 	{
 		while (!glfwWindowShouldClose(window)) {
-			Display(window, rProg, vbo, u_view, vLoc, viewMat, u_model, mLoc, modelMat, u_proj, projLoc, projMat, u_time, timeLoc, currentTime, cam, modelpos, polygon_count, primitive_count);
+			Display(window, rProg, vbo, u_view, vLoc, viewMat, u_model, mLoc, modelMat, u_proj, projLoc, projMat, u_time, timeLoc, glfwGetTime(), cam, modelpos, polygon_count, primitive_count);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
