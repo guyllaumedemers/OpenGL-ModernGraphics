@@ -21,15 +21,15 @@ namespace Utilities {
 		return glm::perspective(rad, (float)width / (float)height, zNear, zFar);
 	}
 
-	glm::mat4 CreateModelViewMatrix(glm::vec3& cam, glm::vec3& model) {
+	glm::mat4 CreateModelViewMatrix(const glm::vec3& cam, const  glm::vec3& model) {
 		return glm::translate(glm::mat4(1.0f), -cam) * glm::translate(glm::mat4(1.0f), model);
 	}
 
-	glm::mat4 CreateViewMatrix(glm::vec3& cam) {
+	glm::mat4 CreateViewMatrix(const glm::vec3& cam) {
 		return glm::translate(glm::mat4(1.0f), -cam);
 	}
 
-	glm::mat4 CreateModelMatrix(glm::vec3& model) {
+	glm::mat4 CreateModelMatrix(const glm::vec3& model) {
 		return glm::translate(glm::mat4(1.0f), model);
 	}
 
@@ -133,12 +133,12 @@ namespace Utilities {
 
 		for (int i = 0; i < models.size(); ++i) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (models[i].size() - 1), &models[i], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &models[i], GL_STATIC_DRAW);
 		}
 	}
 
 	void Draw(const GLenum& type, const GLint& first, const GLint& polygons_count) {
-		glEnable(GLFW_DEPTH_BITS);
+		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glDrawArrays(type, first, polygons_count);
 	}
@@ -150,19 +150,18 @@ namespace Utilities {
 		glUseProgram(rProg);
 	}
 
-	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, glm::vec3& cam, const float& rad, const float& zNear, const float& zFar,
+	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, const glm::vec3& cam, const float& rad, const float& zNear, const float& zFar,
 		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
 		pv_matrix = CreatePerspectiveMatrix(window, rad, zNear, zFar) * CreateViewMatrix(cam);
 		SetupVetices(models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mpvLoc, const char* mpv_uniform, GLuint vbo[], const int& index,
+	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mpvLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
 		const GLenum& type, const GLint& first, const GLint& polygons_count) {
-		Refresh(rProg);
-		glm::mat4 mpv_matrix = pv_matrix * CreateModelMatrix(model);
-		mpvLoc = glGetUniformLocation(rProg, mpv_uniform);
-		glUniform4fv(mpvLoc, 1, glm::value_ptr(mpv_matrix));
+		glm::mat4 mvp_matrix = pv_matrix * CreateModelMatrix(model);
+		mpvLoc = glGetUniformLocation(rProg, mvp_uniform);
+		glUniformMatrix4fv(mpvLoc, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[index]);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -173,18 +172,19 @@ namespace Utilities {
 #if game
 #endif
 
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, glm::vec3 cam, const float& rad, const float& zNear, const float& zFar,
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& pv_matrix, const glm::vec3& cam, const float& rad, const float& zNear, const float& zFar,
 		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		glfwSwapInterval(1);
 		Init(window, rProg, vp, fp, pv_matrix, cam, rad, zNear, zFar, models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& pv_matrix, std::vector<glm::vec3> model_positions, GLint& mpvLoc, const char* mpv_uniform, GLuint vbo[],
+	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& pv_matrix, std::vector<glm::vec3> model_positions, GLint& mpvLoc, const char* mvp_uniform, GLuint vbo[],
 		std::vector<std::vector<float>> models, const GLenum& type)
 	{
 		while (!glfwWindowShouldClose(window)) {
+			Refresh(rProg);
 			for (int i = 0; i < model_positions.size(); ++i) {
-				Display(rProg, pv_matrix, model_positions[i], mpvLoc, mpv_uniform, vbo, i, type, 0, models[i].size() - 1);
+				Display(rProg, pv_matrix, model_positions[i], mpvLoc, mvp_uniform, vbo, i, type, 0, models[i].size() / 3);
 			}
 			glfwSwapBuffers(window);
 			glfwPollEvents();

@@ -18,7 +18,7 @@ GLuint rProg;
 const char* vp = "vp.shader";
 const char* fp = "fp.shader";
 
-glm::mat4 pv_matrix, mvp_matrix;
+glm::mat4 pv_matrix;
 glm::vec3 cam{ 0.0f, 0.0f, 8.0f };
 
 std::vector<glm::vec3> model_positions{
