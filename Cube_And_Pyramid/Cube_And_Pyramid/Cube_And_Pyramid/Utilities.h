@@ -21,7 +21,7 @@ namespace Utilities {
 		return glm::perspective(rad, (float)width / (float)height, zNear, zFar);
 	}
 
-	glm::mat4 CreateModelViewMatrix(const glm::vec3& cam, const  glm::vec3& model) {
+	glm::mat4 CreateModelViewMatrix(const glm::vec3& cam, const glm::vec3& model) {
 		return glm::translate(glm::mat4(1.0f), -cam) * glm::translate(glm::mat4(1.0f), model);
 	}
 
@@ -125,15 +125,14 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVetices(std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
-
+	void SetupVertices(std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[0]);
 		glGenBuffers(numVBOs, vbo);
 
 		for (int i = 0; i < models.size(); ++i) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &models[i], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &(*models[i].begin()), GL_STATIC_DRAW);
 		}
 	}
 
@@ -145,7 +144,7 @@ namespace Utilities {
 
 	void Refresh(const GLuint& rProg) {
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(rProg);
 	}
@@ -154,14 +153,14 @@ namespace Utilities {
 		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
 		pv_matrix = CreatePerspectiveMatrix(window, rad, zNear, zFar) * CreateViewMatrix(cam);
-		SetupVetices(models, numVAOs, vao, numVBOs, vbo);
+		SetupVertices(models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mpvLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
+	void Display(GLuint& rProg, glm::mat4& pv_matrix, glm::vec3& model, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
 		const GLenum& type, const GLint& first, const GLint& polygons_count) {
 		glm::mat4 mvp_matrix = pv_matrix * CreateModelMatrix(model);
-		mpvLoc = glGetUniformLocation(rProg, mvp_uniform);
-		glUniformMatrix4fv(mpvLoc, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
+		mvpLoc = glGetUniformLocation(rProg, mvp_uniform);
+		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[index]);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -178,13 +177,13 @@ namespace Utilities {
 		Init(window, rProg, vp, fp, pv_matrix, cam, rad, zNear, zFar, models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& pv_matrix, std::vector<glm::vec3> model_positions, GLint& mpvLoc, const char* mvp_uniform, GLuint vbo[],
+	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& pv_matrix, std::vector<glm::vec3> model_positions, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
 		std::vector<std::vector<float>> models, const GLenum& type)
 	{
 		while (!glfwWindowShouldClose(window)) {
 			Refresh(rProg);
 			for (int i = 0; i < model_positions.size(); ++i) {
-				Display(rProg, pv_matrix, model_positions[i], mpvLoc, mvp_uniform, vbo, i, type, 0, models[i].size() / 3);
+				Display(rProg, pv_matrix, model_positions[i], mvpLoc, mvp_uniform, vbo, i, type, 0, (models[i].size() / 3));
 			}
 			glfwSwapBuffers(window);
 			glfwPollEvents();
