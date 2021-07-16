@@ -42,25 +42,40 @@ std::vector<std::vector<float>> models{
 			1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
 			-1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
 			1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
+	},
+	// smaller cube (redundant)
+	{
+		-1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
 	}
 };
 
 std::vector<glm::vec3> positions{
-	glm::vec3(0.0f,0.0f,0.0f),																// sun
-	glm::vec3(sin((float)glfwGetTime() * 4.0f), 0.0f, cos((float)glfwGetTime() * 4.0f)),	// earth
-	glm::vec3(0.0f, sin((float)glfwGetTime() * 2.0f), cos((float)glfwGetTime() * 2.0f))		// moon
+	glm::vec3(0.0f,0.0f,0.0f),
+	glm::vec3(1.0f, 0.0f, 1.0f),
+	glm::vec3(0.0f, 1.0f, 1.0f)
 };
 
 std::vector<glm::vec3> rotations{
-	glm::vec3(1.0f,0.0f,0.0f),																// sun
-	glm::vec3(0.0f,1.0f,0.0f),																// earth
-	glm::vec3(0.0f,0.0f,1.0f)																// moon
+	glm::vec3(1.0f,0.0f,0.0f),
+	glm::vec3(0.0f,1.0f,0.0f),
+	glm::vec3(0.0f,0.0f,1.0f)
 };
 
 std::vector<glm::vec3> scales{
-	glm::vec3(1.0f,1.0f,1.0f),																// sun
-	glm::vec3(1.0f,1.0f,1.0f),																// earth
-	glm::vec3(0.25f,0.25f,0.25f)															// moon
+	glm::vec3(1.0f,1.0f,1.0f),
+	glm::vec3(1.0f,1.0f,1.0f),
+	glm::vec3(0.25f,0.25f,0.25f)
 };
 
 std::stack<glm::mat4> mvstack;

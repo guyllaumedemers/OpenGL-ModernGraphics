@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
@@ -140,7 +141,7 @@ namespace Utilities {
 		glGenBuffers(numVBOs, vbo);
 
 		for (int i = 0; i < models.size(); ++i) {
-			glBindBuffer(GL_ARRAY_BUFFER, vbo[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo[i == 0 ? 1 : 0]);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &(*models[i].begin()), GL_STATIC_DRAW);
 		}
 	}
@@ -165,9 +166,8 @@ namespace Utilities {
 		SetupVertices(models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void Display(GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4> mv_stack, const glm::vec3& cam, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
+	void Display(GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
 		const GLenum& type, const GLint& first, const GLint& polygons_count) {
-
 		mv_stack.push(mv_stack.top());
 		mv_stack.top() *= CreateModelMatrix(position);
 		mv_stack.push(mv_stack.top());
@@ -195,18 +195,17 @@ namespace Utilities {
 		Init(window, rProg, vp, fp, proj_matrix, rad, zNear, zFar, models, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4> mv_stack, const glm::vec3& cam, std::vector<glm::vec3> positions, std::vector<glm::vec3> rotations, std::vector<glm::vec3> scales, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
+	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, std::vector<glm::vec3> positions, std::vector<glm::vec3> rotations, std::vector<glm::vec3> scales, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
 		std::vector<std::vector<float>> models, const GLenum& type)
 	{
 		while (!glfwWindowShouldClose(window)) {
 			Refresh(rProg);
 			mv_stack.push(CreateViewMatrix(cam));
 			for (int i = 0; i < positions.size(); ++i) {
-				Display(rProg, proj_matrix, mv_stack, cam, positions[i], rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, i == 0 ? 1 : 0, type, 0, (models[i == 0 ? 1 : 0].size() / 3));
+				glm::vec3 temp = (i % 2 == 0) ? glm::vec3(0.0f, sin((float)glfwGetTime()) * 2.0f, cos((float)glfwGetTime()) * 2.0f) : glm::vec3(sin((float)glfwGetTime()) * 4.0f, 0.0f, cos((float)glfwGetTime()) * 4.0f);
+				Display(rProg, proj_matrix, mv_stack, cam, i == 0 ? positions[i] : temp, rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, i == 0 ? 1 : 0, type, 0, (models[i].size() / 3));
 			}
-			while (!mv_stack.empty()) {
-				mv_stack.pop();
-			}
+			while (!mv_stack.empty()) mv_stack.pop();
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
