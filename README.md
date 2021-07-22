@@ -20,6 +20,9 @@ NOTE : This project is broken down into multiples folders, each representing a s
 5.  Drawing a Triangle
 6.  Simple Animation Example
 7.  Plain Red Cube
+8.  Instancing - Twenty-Four Animated Cubes
+9.  Cube and Pyramid
+10. Simple Solar System Using Matrix Stack
 
 ```
 NOTE : Scripts created by myself can be found here.
