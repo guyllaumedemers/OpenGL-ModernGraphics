@@ -148,7 +148,8 @@ namespace Utilities {
 		exit(EXIT_SUCCESS);
 	}
 
-	void SetupVertices(std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+	void SetupVertices(std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs,
+		GLuint vbo[]) {
 		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[0]);
 		glGenBuffers(numVBOs, vbo);
@@ -156,6 +157,9 @@ namespace Utilities {
 		for (int i = 0; i < models.size(); ++i) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &(*models[i].begin()), GL_STATIC_DRAW);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * textures[i].size(), &(*textures[i].begin()), GL_STATIC_DRAW);
 		}
 	}
 
@@ -172,15 +176,16 @@ namespace Utilities {
 		glUseProgram(rProg);
 	}
 
-	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
-		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const char* tp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
+		std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
+		textureID = TextureLoading(tp);
 		proj_matrix = CreatePerspectiveMatrix(window, rad, zNear, zFar);
-		SetupVertices(models, numVAOs, vao, numVBOs, vbo);
+		SetupVertices(models, textures, numVAOs, vao, numVBOs, vbo);
 	}
 
-	void Display(GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[], const int& index,
-		const GLenum& type, const GLint& first, const GLint& polygons_count) {
+	void Display(GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
+		const GLenum& type, GLuint& textureID, const GLint& polygons_count) {
 		mv_stack.push(mv_stack.top());
 		mv_stack.top() *= CreateModelMatrix(position);
 		mv_stack.push(mv_stack.top());
@@ -192,30 +197,37 @@ namespace Utilities {
 		mvpLoc = glGetUniformLocation(rProg, mvp_uniform);
 		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp_matrix));
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[index]);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);									// positions
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
-		Draw(type, first, polygons_count);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);									// textures coordinates
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		Draw(type, 0, polygons_count);
 		mv_stack.pop();
 	}
 
 #if game
 #endif
 
-	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
-		std::vector<std::vector<float>> models, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const char* tp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
+		std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		glfwSwapInterval(1);
-		Init(window, rProg, vp, fp, proj_matrix, rad, zNear, zFar, models, numVAOs, vao, numVBOs, vbo);
+		Init(window, rProg, vp, fp, tp, proj_matrix, rad, zNear, zFar, models, textures, textureID, numVAOs, vao, numVBOs, vbo);
 	}
 
 	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, std::vector<glm::vec3> positions, std::vector<glm::vec3> rotations, std::vector<glm::vec3> scales, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
-		std::vector<std::vector<float>> models, const GLenum& type)
+		std::vector<std::vector<float>> models, const GLenum& type, GLuint& textureID)
 	{
 		while (!glfwWindowShouldClose(window)) {
 			Refresh(rProg);
 			mv_stack.push(CreateViewMatrix(cam));
 			for (int i = 0; i < positions.size(); ++i) {
-				Display(rProg, proj_matrix, mv_stack, cam, positions[i], rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, 0, type, 0, (models[i].size() / 3));
+				Display(rProg, proj_matrix, mv_stack, cam, positions[i], rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, type, textureID, (models[i].size() / 3));
 			}
 			while (!mv_stack.empty()) mv_stack.pop();
 			glfwSwapBuffers(window);

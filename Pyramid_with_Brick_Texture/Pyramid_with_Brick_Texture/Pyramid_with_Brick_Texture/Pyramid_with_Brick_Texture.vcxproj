@@ -158,6 +158,9 @@
     <None Include="fp.shader" />
     <None Include="vp.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="brick1.jpg" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

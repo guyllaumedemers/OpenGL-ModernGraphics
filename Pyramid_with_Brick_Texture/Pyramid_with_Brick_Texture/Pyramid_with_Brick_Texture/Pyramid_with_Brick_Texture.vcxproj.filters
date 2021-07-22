@@ -19,6 +19,9 @@
     <Filter Include="Resource Files\res\shader">
       <UniqueIdentifier>{cc96d9c1-9ca5-487c-9ee2-57771ffc5959}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\res\img">
+      <UniqueIdentifier>{ee85444b-7fb5-4ace-bd0c-bdb1d3c14978}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -43,5 +46,10 @@
     <None Include="vp.shader">
       <Filter>Resource Files\res\shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="brick1.jpg">
+      <Filter>Resource Files\res\img</Filter>
+    </Image>
   </ItemGroup>
 </Project>
