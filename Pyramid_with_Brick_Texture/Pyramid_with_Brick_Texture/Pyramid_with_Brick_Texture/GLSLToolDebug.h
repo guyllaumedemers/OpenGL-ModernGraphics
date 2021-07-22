@@ -1,7 +1,5 @@
 #pragma once
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
+#include "Utilities.h"
 
 namespace GLSLToolDebug {
 
@@ -12,20 +10,20 @@ namespace GLSLToolDebug {
 		if (len > 0) {
 			log = (char*)malloc(len);											// Allocates a block of size bytes of memory, returning a pointer to the beginning of the block.
 			glGetShaderInfoLog(shader, len, &chWrittn, log);
-			std::cout << "Shader info Log : " << log << std::endl;
+			std::printf("Shader info Log : %s", log);
 			free(log);															// A block of memory previously allocated by a call to malloc, calloc or realloc is deallocated
 		}
 		return;
 	}
 
-	void PrintProgramLog(int prog) {											
+	void PrintProgramLog(int prog) {
 		int len = 0, chWrittn = 0;
 		char* log = nullptr;
 		glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
 		if (len > 0) {
 			log = (char*)malloc(len);
 			glGetProgramInfoLog(prog, len, &chWrittn, log);
-			std::cout << "Program info Log : " << log << std::endl;
+			std::printf("Program info Log : %s", log);
 			free(log);
 		}
 		return;
@@ -35,7 +33,7 @@ namespace GLSLToolDebug {
 		bool foundError = false;
 		int glErr = glGetError();
 		while (glErr != GL_NO_ERROR) {
-			std::cout << "glError " << glErr << std::endl;						// output all error code to the console
+			std::printf("glError : %d", glErr);									// output all error code to the console
 			foundError = true;
 			glErr = glGetError();
 		}

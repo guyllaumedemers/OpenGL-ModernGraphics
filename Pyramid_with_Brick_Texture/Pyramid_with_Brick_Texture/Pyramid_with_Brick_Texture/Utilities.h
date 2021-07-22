@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <SOIL2/SOIL2.h>
+#include <fstream>
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdio>
@@ -68,7 +69,7 @@ namespace Utilities {
 		GLSLToolDebug::CheckOpenGLError();
 		glGetShaderiv(vShader, GL_COMPILE_STATUS, &vertCompiled);			// reference his adress so we can fill his value
 		if (vertCompiled != 1) {
-			std::cout << "vertex compilation failed" << std::endl;
+			std::puts("vertex compilation failed");
 			GLSLToolDebug::PrintShaderLog(vShader);
 		}
 
@@ -76,7 +77,7 @@ namespace Utilities {
 		GLSLToolDebug::CheckOpenGLError();
 		glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
 		if (fragCompiled != 1) {
-			std::cout << "fragment compilation failed" << std::endl;
+			std::puts("fragment compilation failed");
 			GLSLToolDebug::PrintShaderLog(fShader);
 		}
 
@@ -89,7 +90,7 @@ namespace Utilities {
 		GLSLToolDebug::CheckOpenGLError();
 		glGetProgramiv(vfProgram, GL_LINK_STATUS, &linked);
 		if (linked != 1) {
-			std::cout << "linking failed" << std::endl;
+			std::puts("linking failed");
 			GLSLToolDebug::PrintProgramLog(vfProgram);
 		}
 

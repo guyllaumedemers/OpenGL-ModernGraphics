@@ -1,7 +1,5 @@
 #pragma once
-#include <string>
-#include <iostream>
-#include <fstream>
+#include "Utilities.h"
 
 namespace GLSLFileReader {
 
@@ -11,7 +9,7 @@ namespace GLSLFileReader {
 		std::string line = "";
 
 		if (!fileStream) {											// safety catch
-			std::cout << "filepath invalid" << std::endl;
+			std::puts("filepath invalid");
 			return "";
 		}
 
