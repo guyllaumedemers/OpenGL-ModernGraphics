@@ -17,8 +17,9 @@
 #include "GLSLFileReader.h"
 
 namespace Utilities {
-#if Matrix
-#endif
+
+	//MATRIX
+
 	glm::mat4 CreatePerspectiveMatrix(GLFWwindow* window, const float& rad, const float& zNear, const float& zFar) {
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
@@ -45,8 +46,8 @@ namespace Utilities {
 		return glm::scale(glm::mat4(1.0f), scale);
 	}
 
-#if ShaderProgram
-#endif
+	//SHADER
+
 	// Take a vertex Shader and a fragment shader as args
 	GLuint CreateShaderProgram(const char* vp, const char* fp) {
 		GLint vertCompiled;
@@ -118,8 +119,7 @@ namespace Utilities {
 		return 0;
 	}
 
-#if Texture_Loading
-#endif
+	//TEXTURE
 
 	GLuint TextureLoading(const char* imgPath) {
 		GLuint textureID;
@@ -130,8 +130,8 @@ namespace Utilities {
 		return textureID;
 	}
 
-#if main
-#endif
+	//PROGRAM
+
 	GLFWwindow* CreateWindow(const int& width, const int& height, const char* name, const int& major_version, const int& minor_version) {
 		if (!glfwInit()) {
 			std::puts("GLFW lib not initialize");
@@ -143,30 +143,25 @@ namespace Utilities {
 		return glfwCreateWindow(width, height, name, NULL, NULL);
 	}
 
-	void DestroyWindow(GLFWwindow* window) {
-		glfwDestroyWindow(window);
-		glfwTerminate();
-		exit(EXIT_SUCCESS);
-	}
-
-	void SetupVertices(std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs,
+	void SetupVertices(std::vector<std::vector<float>> m_coord, std::vector<std::vector<float>> text_coord, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs,
 		GLuint vbo[]) {
 		glGenVertexArrays(numVAOs, vao);
 		glBindVertexArray(vao[0]);
 		glGenBuffers(numVBOs, vbo);
 
-		for (int i = 0; i < models.size(); ++i) {
+		for (int i = 0; i < m_coord.size(); ++i) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * models[i].size(), &(*models[i].begin()), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_coord[i].size(), &(*m_coord[i].begin()), GL_STATIC_DRAW);
 
 			glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * textures[i].size(), &(*textures[i].begin()), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * text_coord[i].size(), &(*text_coord[i].begin()), GL_STATIC_DRAW);
 		}
 	}
 
-	void Draw(const GLenum& type, const GLint& first, const GLint& polygons_count) {
+	void Draw(const GLenum& type, const GLint& first, const GLint& polygons_count, const GLenum& cullingType) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
+		glFrontFace(cullingType);
 		glDrawArrays(type, first, polygons_count);
 	}
 
@@ -178,15 +173,18 @@ namespace Utilities {
 	}
 
 	void Init(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const char* tp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
-		std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+		std::vector<std::vector<float>> m_coord, std::vector<std::vector<float>> text_coord, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
 		rProg = CreateShaderProgram(vp, fp);
 		textureID = TextureLoading(tp);
 		proj_matrix = CreatePerspectiveMatrix(window, rad, zNear, zFar);
-		SetupVertices(models, textures, numVAOs, vao, numVBOs, vbo);
+		SetupVertices(m_coord, text_coord, numVAOs, vao, numVBOs, vbo);
 	}
 
 	void Display(GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, glm::vec3& position, glm::vec3& rotation, glm::vec3& scale, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
-		const GLenum& type, GLuint& textureID, const GLint& polygons_count) {
+		const GLenum& type, GLuint& textureID, const GLint& polygons_count, const GLenum& cullingType) {
+
+		glEnable(GL_CULL_FACE);
+
 		mv_stack.push(mv_stack.top());
 		mv_stack.top() *= CreateModelMatrix(position);
 		mv_stack.push(mv_stack.top());
@@ -208,31 +206,44 @@ namespace Utilities {
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureID);
-		Draw(type, 0, polygons_count);
+		Draw(type, 0, polygons_count, cullingType);
 		mv_stack.pop();
 	}
 
-#if game
-#endif
+	void window_reshape_callback(GLFWwindow* window, int new_width, int new_height) {
+		float aspect = (float)new_height / (float)new_height;
+		glViewport(0, 0, new_width, new_height);
+		//Cannot allow callback upon resizing the window since GLFWwindowsizefun doesnt allow to pass the projection matrix as argument
+	}
+
+	//GAME LOOP
 
 	void PreGameLoop(GLFWwindow* window, GLuint& rProg, const char* vp, const char* fp, const char* tp, glm::mat4& proj_matrix, const float& rad, const float& zNear, const float& zFar,
-		std::vector<std::vector<float>> models, std::vector<std::vector<float>> textures, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+		std::vector<std::vector<float>> m_coord, std::vector<std::vector<float>> text_coord, GLuint& textureID, const GLsizei& numVAOs, GLuint vao[], const GLsizei& numVBOs, GLuint vbo[]) {
+		//glfwSetWindowSizeCallback(window, window_reshape_callback);
 		glfwSwapInterval(1);
-		Init(window, rProg, vp, fp, tp, proj_matrix, rad, zNear, zFar, models, textures, textureID, numVAOs, vao, numVBOs, vbo);
+		Init(window, rProg, vp, fp, tp, proj_matrix, rad, zNear, zFar, m_coord, text_coord, textureID, numVAOs, vao, numVBOs, vbo);
 	}
 
 	void GameLoop(GLFWwindow* window, GLuint& rProg, glm::mat4& proj_matrix, std::stack<glm::mat4>& mv_stack, const glm::vec3& cam, std::vector<glm::vec3> positions, std::vector<glm::vec3> rotations, std::vector<glm::vec3> scales, GLint& mvpLoc, const char* mvp_uniform, GLuint vbo[],
-		std::vector<std::vector<float>> models, const GLenum& type, GLuint& textureID)
+		std::vector<std::vector<float>> m_coord, const GLenum& type, GLuint& textureID)
 	{
 		while (!glfwWindowShouldClose(window)) {
 			Refresh(rProg);
 			mv_stack.push(CreateViewMatrix(cam));
 			for (int i = 0; i < positions.size(); ++i) {
-				Display(rProg, proj_matrix, mv_stack, cam, positions[i], rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, type, textureID, (models[i].size() / 3));
+				//Can set the culling type depending on the position index in the array if < x do this else do that
+				Display(rProg, proj_matrix, mv_stack, cam, positions[i], rotations[i], scales[i], mvpLoc, mvp_uniform, vbo, type, textureID, (m_coord[i].size() / 3), GL_CCW);
 			}
 			while (!mv_stack.empty()) mv_stack.pop();
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
+	}
+
+	void DestroyWindow(GLFWwindow* window) {
+		glfwDestroyWindow(window);
+		glfwTerminate();
+		exit(EXIT_SUCCESS);
 	}
 }
