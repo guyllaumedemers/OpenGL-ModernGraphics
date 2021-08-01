@@ -127,6 +127,9 @@ namespace Utilities {
 		if (textureID == 0) {
 			std::printf("could not find texture file : %s", imgPath);
 		}
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		return textureID;
 	}
 
